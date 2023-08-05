@@ -177,7 +177,7 @@ public class Point implements Comparable<Point> {
         }
 
         {
-            Point origin = new Point(0, 0);
+            Point origin = new Point(20, 0);
             Point fifteen = new Point(10, 15);
             printCalc(origin, fifteen, "slope", origin.slopeTo(fifteen));
 
@@ -190,7 +190,7 @@ public class Point implements Comparable<Point> {
             Point eleven = new Point(10, 11);
             printCalc(origin, eleven, "slope", origin.slopeTo(eleven));
 
-            Point[] points = new Point[] { fifteen, minusTwenty, six, eleven };
+            var points = new Point[] { fifteen, minusTwenty, six, eleven };
 
             Arrays.sort(points, origin.slopeOrder());
 
