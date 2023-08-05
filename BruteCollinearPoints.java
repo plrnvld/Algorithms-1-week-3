@@ -1,16 +1,32 @@
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 
 public class BruteCollinearPoints {
 
-    LineSegment[] segments;
-    int segSize;
-    
+    private LineSegment[] segments;
+    private int nextIndex;
+    private static final int START_SIZE = 10;
+
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
-        segments = new LineSegment[10];
-        segSize = 0;
+        if (points == null)
+            throw new IllegalArgumentException();
+
+        for (var p : points)
+            if (p == null)
+                throw new IllegalArgumentException();
+
+        var dupCheckPoints = new Point[points.length];
+        for (var i = 0; i < points.length; i++)
+            dupCheckPoints[i] = points[i];
+
+        Arrays.sort(dupCheckPoints);
+
+        for (var i = 1; i < dupCheckPoints.length; i++)
+            if (dupCheckPoints[i - 1].compareTo(dupCheckPoints[i]) == 0)
+                throw new IllegalArgumentException("Duplicate points");
+
+        segments = new LineSegment[START_SIZE];
+        nextIndex = 0;
 
         for (var i = 0; i < points.length; i++)
             for (var j = i + 1; j < points.length; j++)
@@ -30,27 +46,28 @@ public class BruteCollinearPoints {
     }
 
     private void addSegment(Point p, Point q, Point r, Point s) {
-        var points = new Point[] { p, q, r, s};
-        Arrays.sort(points, p.slopeOrder());
+        var points = new Point[] { p, q, r, s };
+        Arrays.sort(points);
         var minPoint = points[0];
         var maxPoint = points[3];
         var newSegment = new LineSegment(minPoint, maxPoint);
+        var index = nextIndex++;
 
-        if (segSize > segments.length + 1) {
-            var newSize = Integer.MAX_VALUE / 2 < segments.length 
-                ? Integer.MAX_VALUE 
-                : segments.length * 2;
+        if (index >= segments.length) {
+            var newSize = Integer.MAX_VALUE / 2 < segments.length
+                    ? Integer.MAX_VALUE
+                    : segments.length * 2;
 
             var newArray = new LineSegment[newSize];
             for (var i = 0; i < segments.length; i++) {
                 newArray[i] = segments[i];
                 segments[i] = null;
             }
-            
+
             segments = newArray;
         }
 
-        segments[segSize++] = newSegment;        
+        segments[index] = newSegment;
     }
 
     private double normalizedSlope(Point p0, Point p1) {
@@ -59,14 +76,14 @@ public class BruteCollinearPoints {
 
     // the number of line segments
     public int numberOfSegments() {
-        return segSize;
+        return nextIndex;
     }
 
     // the line segments
     public LineSegment[] segments() {
-        var results = new LineSegment[segSize];
+        var results = new LineSegment[nextIndex];
 
-        for (var i = 0; i < segSize; i++)
+        for (var i = 0; i < nextIndex; i++)
             results[i] = segments[i];
 
         return results;

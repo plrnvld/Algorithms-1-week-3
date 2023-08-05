@@ -9,7 +9,6 @@
  *
  ******************************************************************************/
 
-import java.util.Arrays;
 import java.util.Comparator;
 import edu.princeton.cs.algs4.StdDraw;
 
@@ -17,6 +16,8 @@ public class Point implements Comparable<Point> {
 
     private final int x; // x-coordinate of this point
     private final int y; // y-coordinate of this point
+
+    private static final double EPSILON = 0.0000001;            
 
     /**
      * Initializes a new point.
@@ -61,17 +62,19 @@ public class Point implements Comparable<Point> {
      * @return the slope between this point and the specified point
      */
     public double slopeTo(Point that) {
+        if (that == null)
+            throw new NullPointerException("[slopeTo] that cannot be null");
+
         if (this.compareTo(that) == 0)
             return Double.NEGATIVE_INFINITY;
 
         if (this.y == that.y) {
-            return +0.0;
-        }            
+            return +0.0;        }
 
         if (this.x == that.x)
             return Double.POSITIVE_INFINITY;
 
-        return ((double)that.y - this.y) / ((double)that.x - this.x);
+        return ((double) that.y - this.y) / ((double) that.x - this.x);
     }
 
     /**
@@ -87,6 +90,9 @@ public class Point implements Comparable<Point> {
      *         argument point
      */
     public int compareTo(Point that) {
+        if (that == null)
+            throw new NullPointerException("[compareTo] that cannot be null");
+
         if (this.y < that.y)
             return -1;
         if (this.y > that.y)
@@ -117,15 +123,24 @@ public class Point implements Comparable<Point> {
         }
 
         public int compare(Point p0, Point p1) {
+            if (p0 == null || p1 == null)
+                throw new NullPointerException("[compare]");
+
             var slope0 = from.slopeTo(p0);
             var slope1 = from.slopeTo(p1);
 
+            var delta = slope1 - slope0;
+            if (delta < EPSILON && delta > -EPSILON)
+                return 0;
+
+            if (slope0 == Double.POSITIVE_INFINITY && slope1 == Double.POSITIVE_INFINITY 
+                || slope0 == Double.NEGATIVE_INFINITY && slope1 == Double.NEGATIVE_INFINITY)
+                return 0;
+
             if (slope0 < slope1)
                 return -1;
-            if (slope0 >= slope1)
-                return 1;
-
-            return 0;
+            
+            return 1;
         }
     }
 
@@ -145,68 +160,17 @@ public class Point implements Comparable<Point> {
      * Unit tests the Point data type.
      */
     public static void main(String[] args) {
-        /* YOUR CODE HERE */
-        {
-            Point p0 = new Point(0, 0);
-            Point p1 = new Point(1, 1);
-            printCalc(p0, p1, "slope", p0.slopeTo(p1));
-        }
+        Point p = new Point(7, 9);
+        Point q = new Point(1, 5);
+        Point r = new Point(4, 7);
 
-        {
-            Point p0 = new Point(0, 0);
-            Point p1 = new Point(1, 2);
-            printCalc(p0, p1, "slope", p0.slopeTo(p1));
-        }
+        printCalc(p, q, "slope", p.slopeTo(q));
+        printCalc(p, r, "slope", p.slopeTo(r));
 
-        {
-            Point p0 = new Point(0, 0);
-            Point p1 = new Point(0, 2);
-            printCalc(p0, p1, "slope", p0.slopeTo(p1));
-        }
-
-        {
-            Point p0 = new Point(0, 0);
-            Point p1 = new Point(0, 0);
-            printCalc(p0, p1, "slope", p0.slopeTo(p1));
-        }
-
-        {
-            Point p0 = new Point(0, 0);
-            Point p1 = new Point(0, 0);
-            printCalc(p0, p1, "compareTo", p0.compareTo(p1));
-        }
-
-        {
-            Point origin = new Point(20, 0);
-            Point fifteen = new Point(10, 15);
-            printCalc(origin, fifteen, "slope", origin.slopeTo(fifteen));
-
-            Point minusTwenty = new Point(10, -20);
-            printCalc(origin, minusTwenty, "slope", origin.slopeTo(minusTwenty));
-
-            Point six = new Point(10, 6);
-            printCalc(origin, six, "slope", origin.slopeTo(six));
-
-            Point eleven = new Point(10, 11);
-            printCalc(origin, eleven, "slope", origin.slopeTo(eleven));
-
-            var points = new Point[] { fifteen, minusTwenty, six, eleven };
-
-            Arrays.sort(points, origin.slopeOrder());
-
-            for (var p : points)
-                System.out.println("> " + p);
-
-            System.out.println();
-            {
-                Point p0 = new Point(0, 0);
-                Point p1 = new Point(6, 8);
-                printCalc(p0, p1, "slope", p0.slopeTo(p1));
-            }
-        }
+        printCalc(p, r, "slope compare", new BySlope(p).compare(q, r));
     }
 
-    static void printCalc(Point p0, Point p1, String description, Object result) {
+    private static void printCalc(Point p0, Point p1, String description, Object result) {
         var line = String.format("%s: %s and %s = %s", description, p0, p1, result);
 
         System.out.println(line);
