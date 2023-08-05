@@ -4,7 +4,8 @@ public class FastCollinearPoints {
 
     private LineSegment[] segments;
     private int nextIndex;
-    
+    private static final int START_SIZE = 10;
+
     // finds all line segments containing 4 points
     public FastCollinearPoints(Point[] points) {
         if (points == null)
@@ -13,8 +14,18 @@ public class FastCollinearPoints {
         for (var p : points)
             if (p == null)
                 throw new IllegalArgumentException();
-                
-        segments = new LineSegment[10];
+
+        var dupCheckPoints = new Point[points.length];
+        for (var i = 0; i < points.length; i++)
+            dupCheckPoints[i] = points[i];
+
+        Arrays.sort(dupCheckPoints);
+
+        for (var i = 1; i < dupCheckPoints.length; i++)
+            if (dupCheckPoints[i - 1].compareTo(dupCheckPoints[i]) == 0)
+                throw new IllegalArgumentException("Duplicate points");
+
+        segments = new LineSegment[START_SIZE];
         nextIndex = 0;
 
         for (var i = 0; i < points.length; i++)
@@ -34,30 +45,29 @@ public class FastCollinearPoints {
                     }
     }
 
-  
     private void addSegment(Point p, Point q, Point r, Point s) {
-        var points = new Point[] { p, q, r, s};
+        var points = new Point[] { p, q, r, s };
         Arrays.sort(points);
         var minPoint = points[0];
         var maxPoint = points[3];
         var newSegment = new LineSegment(minPoint, maxPoint);
         var index = nextIndex++;
-        
+
         if (index >= segments.length) {
-            var newSize = Integer.MAX_VALUE / 2 < segments.length 
-                ? Integer.MAX_VALUE 
-                : segments.length * 2;
+            var newSize = Integer.MAX_VALUE / 2 < segments.length
+                    ? Integer.MAX_VALUE
+                    : segments.length * 2;
 
             var newArray = new LineSegment[newSize];
             for (var i = 0; i < segments.length; i++) {
                 newArray[i] = segments[i];
                 segments[i] = null;
             }
-            
+
             segments = newArray;
         }
 
-        segments[index] = newSegment;        
+        segments[index] = newSegment;
     }
 
     private double normalizedSlope(Point p0, Point p1) {
