@@ -2,9 +2,10 @@ import java.util.Arrays;
 
 public class BruteCollinearPoints {
 
+    private static final int START_SIZE = 10;
+
     private LineSegment[] segments;
     private int nextIndex;
-    private static final int START_SIZE = 10;
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
@@ -37,11 +38,9 @@ public class BruteCollinearPoints {
                         var r = points[k];
                         var s = points[m];
 
-                        var slope = normalizedSlope(p, q);
-
-                        if (normalizedSlope(p, r) == slope && normalizedSlope(p, s) == slope) {
+                        var comparer = p.slopeOrder();
+                        if (comparer.compare(q, r) == 0 && comparer.compare(r, s) == 0)
                             addSegment(p, q, r, s);
-                        }
                     }
     }
 
@@ -68,10 +67,6 @@ public class BruteCollinearPoints {
         }
 
         segments[index] = newSegment;
-    }
-
-    private double normalizedSlope(Point p0, Point p1) {
-        return p0.compareTo(p1) < 0 ? p0.slopeTo(p1) : p1.slopeTo(p0);
     }
 
     // the number of line segments

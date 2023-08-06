@@ -14,11 +14,11 @@ import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
 
-    private final int x; // x-coordinate of this point
-    private final int y; // y-coordinate of this point
-
     private static final double EPSILON = 0.0000001;            
 
+    private final int x; // x-coordinate of this point
+    private final int y; // y-coordinate of this point
+    
     /**
      * Initializes a new point.
      *
@@ -126,22 +126,23 @@ public class Point implements Comparable<Point> {
             if (p0 == null || p1 == null)
                 throw new NullPointerException("[compare]");
 
-            var slope0 = from.slopeTo(p0);
-            var slope1 = from.slopeTo(p1);
+            var slope0 = normalizedSlope(from, p0);
+            var slope1 = normalizedSlope(from, p1);
 
-            var delta = slope1 - slope0;
-            if (delta < EPSILON && delta > -EPSILON)
+            var delta = Math.abs(slope1 - slope0);
+            if (delta < EPSILON)
                 return 0;
 
             if (slope0 == Double.POSITIVE_INFINITY && slope1 == Double.POSITIVE_INFINITY 
                 || slope0 == Double.NEGATIVE_INFINITY && slope1 == Double.NEGATIVE_INFINITY)
                 return 0;
 
-            if (slope0 < slope1)
-                return -1;
-            
-            return 1;
+            return slope0 < slope1 ? -1 : 1;
         }
+    }
+
+    private static double normalizedSlope(Point p0, Point p1) {
+        return p0.compareTo(p1) < 0 ? p0.slopeTo(p1) : p1.slopeTo(p0);
     }
 
     /**
